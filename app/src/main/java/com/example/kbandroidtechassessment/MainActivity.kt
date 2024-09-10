@@ -24,6 +24,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,10 +50,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KBAndroidTechAssessmentTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = { TopAppBar() }
-                ) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize(),
+                    topBar = { TopAppBar() }) { innerPadding ->
                     TransactionDetailContent(innerPadding)
                 }
             }
@@ -61,30 +62,39 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar() {
-    LargeTopAppBar(
-        title = { Text("Travel Savings Account") },
-        actions = {
-            IconButton(onClick = { /* Handle filter action */ }) {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = "Filter"
-                )
-            }
+    LargeTopAppBar(title = {
+        Text(
+            getString(
+                LocalContext.current,
+                R.string.transaction_detail_title
+            )
+        )
+    }, actions = {
+        IconButton(onClick = { /* Handle filter action */ }) {
+            Icon(
+                imageVector = Icons.Default.DateRange, contentDescription = "Filter"
+            )
         }
-    )
+    })
 }
 
 @Composable
 fun TransactionDetailContent(innerPadding: PaddingValues) {
+    val transactions = LocalRepository().getTransaction()
+    val totalBalance = remember { mutableStateOf(0.00) }
+    LaunchedEffect(transactions) {
+        totalBalance.value = transactions.sumOf { it.amount }
+    }
+
     Column(modifier = Modifier.padding(innerPadding)) {
-        BalanceInfo()
+        BalanceInfo(totalBalance.value)
         HorizontalDivider()
-        TransactionList()
+        TransactionList(transactions)
     }
 }
 
 @Composable
-fun BalanceInfo() {
+fun BalanceInfo(totalBalance: Double) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val titleFontSize = dimensionResource(R.dimen.font_size_title_16)
@@ -97,7 +107,7 @@ fun BalanceInfo() {
             fontSize = with(density) { titleFontSize.toSp() },
         )
         Text(
-            text = getString(context, R.string.balance_default_value),
+            text = String.format(getString(context, R.string.balance_value), totalBalance),
             fontWeight = FontWeight.W600,
             fontSize = with(density) { contextFontSize.toSp() },
         )
@@ -125,8 +135,7 @@ fun TransactionItem(transaction: Transaction) {
 }
 
 @Composable
-fun TransactionList() {
-    val transactions = LocalRepository().getTransaction()
+fun TransactionList(transactions: List<Transaction>) {
     LazyColumn {
         items(transactions) { transaction ->
             TransactionItem(transaction = transaction)
