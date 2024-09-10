@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="font_size_title_16">16sp</dimen>
+    <dimen name="font_size_context_24">24sp</dimen>
+    <dimen name="ui_transaction_item_horizontal">16dp</dimen>
+    <dimen name="ui_transaction_item_vertical">8dp</dimen>
+</resources>
