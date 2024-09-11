@@ -1,9 +1,11 @@
 package com.example.kbandroidtechassessment
 
+import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -35,6 +37,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
+import androidx.fragment.app.FragmentManager
 import com.example.kbandroidtechassessment.model.Transaction
 import com.example.kbandroidtechassessment.repository.LocalRepository
 import com.example.kbandroidtechassessment.ui.theme.KBAndroidTechAssessmentTheme
@@ -43,34 +46,46 @@ import com.example.kbandroidtechassessment.ui.theme.KBAndroidTechAssessmentTheme
  * @Author Ricky
  * this is main entry point, transaction detail ui use compose
  */
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val supportFragmentManager = getSupportFragmentManager(this)
         setContent {
             KBAndroidTechAssessmentTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
-                    topBar = { TopAppBar() }) { innerPadding ->
+                    topBar = { TopAppBar(supportFragmentManager) }) { innerPadding ->
                     TransactionDetailContent(innerPadding)
                 }
             }
         }
     }
+
+    private fun getSupportFragmentManager(context: Context): FragmentManager? {
+        return (context as? AppCompatActivity)?.supportFragmentManager
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar() {
+private fun TopAppBar(supportFragmentManager: FragmentManager?) {
+    val context = LocalContext.current
+    val pickerDialog = TransactionPickerDialog(context, supportFragmentManager) { selectValue ->
+        Toast.makeText(context, "選擇的值是: $selectValue", Toast.LENGTH_SHORT).show()
+    }
+
     LargeTopAppBar(title = {
         Text(
             getString(
-                LocalContext.current,
+                context,
                 R.string.transaction_detail_title
             )
         )
     }, actions = {
-        IconButton(onClick = { /* Handle filter action */ }) {
+        IconButton(onClick = {
+            pickerDialog.show()
+        }) {
             Icon(
                 imageVector = Icons.Default.DateRange, contentDescription = "Filter"
             )
@@ -79,7 +94,7 @@ fun TopAppBar() {
 }
 
 @Composable
-fun TransactionDetailContent(innerPadding: PaddingValues) {
+private fun TransactionDetailContent(innerPadding: PaddingValues) {
     val transactions = LocalRepository().getTransaction()
     val totalBalance = remember { mutableStateOf(0.00) }
     LaunchedEffect(transactions) {
@@ -94,7 +109,7 @@ fun TransactionDetailContent(innerPadding: PaddingValues) {
 }
 
 @Composable
-fun BalanceInfo(totalBalance: Double) {
+private fun BalanceInfo(totalBalance: Double) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val titleFontSize = dimensionResource(R.dimen.font_size_title_16)
@@ -115,7 +130,7 @@ fun BalanceInfo(totalBalance: Double) {
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+private fun TransactionItem(transaction: Transaction) {
     val horizontal = dimensionResource(R.dimen.ui_transaction_item_horizontal)
     val vertical = dimensionResource(R.dimen.ui_transaction_item_vertical)
     Row(modifier = Modifier.padding(horizontal, vertical = vertical)) {
@@ -135,7 +150,7 @@ fun TransactionItem(transaction: Transaction) {
 }
 
 @Composable
-fun TransactionList(transactions: List<Transaction>) {
+private fun TransactionList(transactions: List<Transaction>) {
     LazyColumn {
         items(transactions) { transaction ->
             TransactionItem(transaction = transaction)
