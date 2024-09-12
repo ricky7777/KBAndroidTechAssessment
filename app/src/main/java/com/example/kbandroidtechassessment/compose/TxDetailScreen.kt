@@ -85,7 +85,7 @@ private fun TransactionPickerDialog(
 ) {
     if (showDialog.value) {
         val pickerDialog = remember {
-            com.example.kbandroidtechassessment.TransactionPickerDialog(
+            com.example.kbandroidtechassessment.dialog.DatePickerDialog(
                 context,
                 supportFragmentManager
             ) { dateRange ->

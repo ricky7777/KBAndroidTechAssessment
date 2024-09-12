@@ -41,7 +41,7 @@
         app:layout_constraintTop_toBottomOf="@id/date_range_input">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_30_days"
+            android:id="@+id/btn_3_days"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -51,7 +51,7 @@
             app:backgroundTint="@null" />
 
         <Button
-            android:id="@+id/btn_90_days"
+            android:id="@+id/btn_10_days"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -63,7 +63,7 @@
             app:backgroundTint="@null" />
 
         <Button
-            android:id="@+id/btn_1_year"
+            android:id="@+id/btn_30_days"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -78,8 +78,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:background="@color/black"
         android:text="@string/btn_confirm"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
+        app:backgroundTint="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/button_container" />

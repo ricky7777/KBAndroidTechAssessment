@@ -1,10 +1,11 @@
-package com.example.kbandroidtechassessment
+package com.example.kbandroidtechassessment.dialog
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.Button
 import androidx.core.util.Pair
 import androidx.fragment.app.FragmentManager
+import com.example.kbandroidtechassessment.R
 import com.example.kbandroidtechassessment.databinding.BottomSheetTransactionDetailCalendarBinding
 import com.example.kbandroidtechassessment.utils.DateUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -16,7 +17,7 @@ import java.util.Calendar
  * @author Ricky
  * transaction detail's date picker
  */
-class TransactionPickerDialog(
+class DatePickerDialog(
     context: Context,
     private val fragmentManager: FragmentManager?,
     private val onDateRangeSelected: (dateRange: kotlin.Pair<String, String>) -> Unit
@@ -34,9 +35,9 @@ class TransactionPickerDialog(
     }
 
     private fun setEvent() {
+        binding.btn3Days.setOnClickListener { selectButton(binding.btn3Days) }
+        binding.btn10Days.setOnClickListener { selectButton(binding.btn10Days) }
         binding.btn30Days.setOnClickListener { selectButton(binding.btn30Days) }
-        binding.btn90Days.setOnClickListener { selectButton(binding.btn90Days) }
-        binding.btn1Year.setOnClickListener { selectButton(binding.btn1Year) }
         binding.btnConfirm.setOnClickListener {
             dateRange?.let {
                 onDateRangeSelected(it)
@@ -76,6 +77,7 @@ class TransactionPickerDialog(
 
     private fun selectButton(button: Button) {
         if (selectedButton != button) {
+            resetButtonsColor()
             changeColor(button)
             selectedButton = button
             dateRange = DateUtils.getDateRangeFromToday(selectedButton?.tag.toString().toInt())
@@ -83,7 +85,18 @@ class TransactionPickerDialog(
     }
 
     private fun changeColor(button: Button) {
-        button.setBackgroundResource(R.drawable.button_selector)
         button.setBackgroundResource(R.color.teal_200)
+    }
+
+    private fun resetButtonsColor(){
+        binding.run {
+            resetButtonColor(btn3Days)
+            resetButtonColor(btn10Days)
+            resetButtonColor(btn30Days)
+        }
+    }
+
+    private fun resetButtonColor(button: Button){
+        button.setBackgroundResource(R.drawable.button_selector)
     }
 }
