@@ -4,6 +4,7 @@ import com.example.kbandroidtechassessment.model.Transaction
 
 /**
  * implement repository pattern
+ * this data source from local hard code
  */
 class LocalRepository : IRepository {
     override fun getTransaction(): List<Transaction> = listOf(

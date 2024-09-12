@@ -2,7 +2,6 @@ package com.example.kbandroidtechassessment
 
 import android.content.Context
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -27,6 +27,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,25 +40,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.ViewModelProvider
 import com.example.kbandroidtechassessment.model.Transaction
-import com.example.kbandroidtechassessment.repository.LocalRepository
 import com.example.kbandroidtechassessment.ui.theme.KBAndroidTechAssessmentTheme
+import com.example.kbandroidtechassessment.viewmodel.TransactionViewModel
 
 /**
  * @Author Ricky
  * this is main entry point, transaction detail ui use compose
  */
 class MainActivity : AppCompatActivity() {
+    private lateinit var transactionViewModel: TransactionViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        transactionViewModel = ViewModelProvider(this).get(TransactionViewModel::class.java)
         val supportFragmentManager = getSupportFragmentManager(this)
         setContent {
             KBAndroidTechAssessmentTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
-                    topBar = { TopAppBar(supportFragmentManager) }) { innerPadding ->
-                    TransactionDetailContent(innerPadding)
+                    topBar = {
+                        TopAppBar(
+                            supportFragmentManager,
+                            transactionViewModel
+                        )
+                    }) { innerPadding ->
+                    TransactionDetailContent(innerPadding, transactionViewModel)
                 }
             }
         }
@@ -69,10 +79,25 @@ class MainActivity : AppCompatActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopAppBar(supportFragmentManager: FragmentManager?) {
+private fun TopAppBar(
+    supportFragmentManager: FragmentManager?,
+    transactionViewModel: TransactionViewModel
+) {
     val context = LocalContext.current
-    val pickerDialog = TransactionPickerDialog(context, supportFragmentManager) { selectValue ->
-        Toast.makeText(context, "選擇的值是: $selectValue", Toast.LENGTH_SHORT).show()
+
+    val showDialog = remember { mutableStateOf(false) }
+
+    if (showDialog.value) {
+        val pickerDialog = remember {
+            TransactionPickerDialog(context, supportFragmentManager) { dateRange ->
+                transactionViewModel.filterTransactions(dateRange)
+            }
+        }
+
+        LaunchedEffect(showDialog) {
+            pickerDialog.show()
+            showDialog.value = false
+        }
     }
 
     LargeTopAppBar(title = {
@@ -83,28 +108,45 @@ private fun TopAppBar(supportFragmentManager: FragmentManager?) {
             )
         )
     }, actions = {
-        IconButton(onClick = {
-            pickerDialog.show()
-        }) {
-            Icon(
-                imageVector = Icons.Default.DateRange, contentDescription = "Filter"
-            )
+        Row {
+            IconButton(onClick = {
+                transactionViewModel.resetTransaction()
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Reset"
+                )
+            }
+
+            // 原本的日期範圍圖標
+            IconButton(onClick = {
+                showDialog.value = true
+            }) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "Filter"
+                )
+            }
         }
     })
 }
 
 @Composable
-private fun TransactionDetailContent(innerPadding: PaddingValues) {
-    val transactions = LocalRepository().getTransaction()
+private fun TransactionDetailContent(
+    innerPadding: PaddingValues,
+    transactionViewModel: TransactionViewModel
+) {
+    val transactions by transactionViewModel.filteredTransactions.collectAsState()
+
     val totalBalance = remember { mutableStateOf(0.00) }
     LaunchedEffect(transactions) {
-        totalBalance.value = transactions.sumOf { it.amount }
+        totalBalance.value = transactionViewModel.filteredTransactions.value.sumOf { it.amount }
     }
 
     Column(modifier = Modifier.padding(innerPadding)) {
         BalanceInfo(totalBalance.value)
         HorizontalDivider()
-        TransactionList(transactions)
+        TransactionList(transactionViewModel.filteredTransactions.value)
     }
 }
 

@@ -32,7 +32,6 @@
 
     <LinearLayout
         android:id="@+id/button_container"
-        style="?android:attr/buttonBarStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
@@ -41,13 +40,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date_range_input">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_30_days"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/button_selector"
-            android:text="@string/btn_30_days" />
+            android:tag="3"
+            android:text="@string/btn_3_days"
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/btn_90_days"
@@ -57,7 +58,9 @@
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
             android:background="@drawable/button_selector"
-            android:text="@string/btn_90_days" />
+            android:tag="10"
+            android:text="@string/btn_10_days"
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/btn_1_year"
@@ -65,7 +68,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/button_selector"
-            android:text="@string/btn_1_year" />
+            android:tag="30"
+            android:text="@string/btn_30_days"
+            app:backgroundTint="@null" />
     </LinearLayout>
 
     <Button
@@ -74,6 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/btn_confirm"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/button_container" />

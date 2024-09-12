@@ -8,8 +8,8 @@
     <string name="bottom_sheet_title">Select Range</string>
     <string name="date_range_label">Date Range</string>
     <string name="date_range_hint">Select Date Range</string>
+    <string name="btn_3_days">Last 3 Days</string>
+    <string name="btn_10_days">Last 10 Days</string>
     <string name="btn_30_days">Last 30 Days</string>
-    <string name="btn_90_days">Last 90 Days</string>
-    <string name="btn_1_year">Last 1 Year</string>
     <string name="btn_confirm">Confirm</string>
 </resources>

@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.KBAndroidTechAssessment" parent="Theme.MaterialComponents.Light.NoActionBar" />
+    <style name="Theme.KBAndroidTechAssessment" parent="Theme.MaterialComponents.Light.NoActionBar" >
+        <item name="colorPrimary">@color/green</item>
+    </style>
+
+    <style name="DatePickerTheme" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>
+    </style>
+
+    <style name="CustomButtonThemeOverlay" parent="ThemeOverlay.MaterialComponents">
+        <item name="buttonStyle">@drawable/button_selector</item>
+    </style>
 </resources>
