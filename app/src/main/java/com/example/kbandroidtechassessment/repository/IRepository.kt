@@ -3,6 +3,7 @@ package com.example.kbandroidtechassessment.repository
 import com.example.kbandroidtechassessment.model.Transaction
 
 /**
+ * @author Ricky
  * Repository pattern
  * use this pattern to expand data center
  * and if data receive change style, don't need change method

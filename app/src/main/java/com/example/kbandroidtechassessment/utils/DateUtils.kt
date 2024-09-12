@@ -12,7 +12,7 @@ import java.util.Locale
  */
 object DateUtils {
 
-    val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     fun formatDate(timeInMillis: Long?): String {
         return if (timeInMillis != null) {
