@@ -2,7 +2,6 @@ package com.example.kbandroidtechassessment
 
 import com.example.kbandroidtechassessment.model.Transaction
 import com.example.kbandroidtechassessment.repository.IRepository
-import com.example.kbandroidtechassessment.repository.LocalRepository
 import com.example.kbandroidtechassessment.viewmodel.TransactionViewModel
 import com.example.kbandroidtechassessment.viewmodel.TransactionViewModelFactory
 import junit.framework.TestCase.assertEquals
