@@ -1,9 +1,10 @@
 package com.example.kbandroidtechassessment.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.kbandroidtechassessment.model.Transaction
-import com.example.kbandroidtechassessment.repository.LocalRepository
+import com.example.kbandroidtechassessment.repository.IRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -12,8 +13,8 @@ import kotlinx.coroutines.launch
  * keep transactions when filtered
  * control balance and show dialog logic
  */
-class TransactionViewModel : ViewModel() {
-    private val transactionsSource = LocalRepository().getTransaction()
+class TransactionViewModel(private val repository: IRepository) : ViewModel() {
+    private val transactionsSource = repository.getTransaction()
     private val _filteredTransactions = MutableStateFlow(transactionsSource)
     val filteredTransactions: StateFlow<List<Transaction>> = _filteredTransactions
 
@@ -37,8 +38,8 @@ class TransactionViewModel : ViewModel() {
         }
     }
 
-    fun resetTransaction(){
-        _filteredTransactions.value = LocalRepository().getTransaction()
+    fun resetTransaction() {
+        _filteredTransactions.value = repository.getTransaction()
         _filteredTransactions.value = transactionsSource
         calculateTotalBalance(transactionsSource)
     }
@@ -56,4 +57,15 @@ class TransactionViewModel : ViewModel() {
         _showDialog.value = false
     }
 
+}
+
+
+class TransactionViewModelFactory(private val repository: IRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TransactionViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return TransactionViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }
