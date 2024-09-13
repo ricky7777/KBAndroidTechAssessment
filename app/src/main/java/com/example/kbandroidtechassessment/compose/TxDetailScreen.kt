@@ -23,10 +23,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.fragment.app.FragmentManager
 import com.example.kbandroidtechassessment.R
+import com.example.kbandroidtechassessment.dialog.DatePickerDialog
 import com.example.kbandroidtechassessment.model.Transaction
 import com.example.kbandroidtechassessment.viewmodel.TransactionViewModel
 
@@ -63,47 +62,43 @@ private fun TopAppBar(
     transactionViewModel: TransactionViewModel
 ) {
     val context = LocalContext.current
-    val showDialog = remember { mutableStateOf(false) }
 
-    TransactionPickerDialog(showDialog, context, supportFragmentManager, transactionViewModel)
+    TransactionPickerDialog(context, supportFragmentManager, transactionViewModel)
 
     val appBarTitle = getString(context, R.string.transaction_detail_title)
     LargeTopAppBar(title = { Text(appBarTitle) }, actions = {
         Row {
             ResetButton(transactionViewModel)
-            FilterButton(showDialog)
+            FilterButton(transactionViewModel)
         }
     })
 }
 
 @Composable
 private fun TransactionPickerDialog(
-    showDialog: MutableState<Boolean>,
     context: Context,
     supportFragmentManager: FragmentManager?,
     transactionViewModel: TransactionViewModel
 ) {
-    if (showDialog.value) {
+    val showDialog by transactionViewModel.showDialog.collectAsState()
+
+    if (showDialog) {
         val pickerDialog = remember {
-            com.example.kbandroidtechassessment.dialog.DatePickerDialog(
-                context,
-                supportFragmentManager
-            ) { dateRange ->
-                transactionViewModel.filterTransactions(dateRange)
+            DatePickerDialog(context, supportFragmentManager) { dateRange ->
+                transactionViewModel.onDateRangeSelected(dateRange)
             }
         }
 
         LaunchedEffect(showDialog) {
             pickerDialog.show()
-            showDialog.value = false
         }
     }
 }
 
 @Composable
-private fun FilterButton(showDialog: MutableState<Boolean>) {
+private fun FilterButton(transactionViewModel: TransactionViewModel) {
     IconButton(onClick = {
-        showDialog.value = true
+        transactionViewModel.toggleShowDialog()
     }) {
         Icon(
             imageVector = Icons.Default.DateRange,
@@ -130,16 +125,12 @@ private fun TransactionDetailContent(
     transactionViewModel: TransactionViewModel
 ) {
     val transactions by transactionViewModel.filteredTransactions.collectAsState()
-
-    val totalBalance = remember { mutableStateOf(0.00) }
-    LaunchedEffect(transactions) {
-        totalBalance.value = transactionViewModel.filteredTransactions.value.sumOf { it.amount }
-    }
+    val totalBalance by transactionViewModel.totalBalance.collectAsState()
 
     Column(modifier = Modifier.padding(innerPadding)) {
-        BalanceInfo(totalBalance.value)
+        BalanceInfo(totalBalance)
         HorizontalDivider()
-        TransactionList(transactionViewModel.filteredTransactions.value)
+        TransactionList(transactions)
     }
 }
 
